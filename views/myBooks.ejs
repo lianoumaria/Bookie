@@ -6,11 +6,12 @@
                 <div class="col-lg-6 col-md-8 mx-auto"> 
                     <h1>These are your books!</h1> 
                     <p class="lead text-body-secondary">You can add any book you've read if it is not already added by someone else. You can also edit or delete the books you have suggested.</p> 
-                    <form action="/book/add" id="form" class="row g-2 justify-content-center px-3" method="POST">
+                    <form action="/books" id="form" class="row g-2 justify-content-center px-3" method="POST">
                         <input type="text" class="form-control" name="bookTitle" placeholder="Title" required="true">
                         <input type="text" class="form-control" name="authorName" placeholder="Author" required="true">
                         <input type="text" class="form-control" name="isbn" placeholder="ISBN" required="true">
                         <input type="text" class="form-control" name="description" placeholder="Description" required="true">
+                        <input type="text" class="form-control" name="releaseDate" placeholder="YYYY-MM-DD" required="true">
                         <select name="category" class="form-select" required>
                             <option value="" disabled selected>Category</option>
                             <option value="1">Fiction</option>
@@ -20,6 +21,7 @@
                             <option value="5">Romance</option>
                             <option value="6">Social</option>
                         </select>
+                        <!--
                         <select name="rating" class="form-select" required>
                             <option value="" disabled selected>Rating</option>
                             <option value="1">1</option>
@@ -28,6 +30,7 @@
                             <option value="4">4</option>
                             <option value="5">5</option>
                         </select>
+                        -->
                         <button type="submit" class="btn btn-secondary">Add new Book</button>
                     </form>
                 </div> 
@@ -36,48 +39,26 @@
         <div class="album py-5 bg-body-tertiary"> 
             <div class="container"> 
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"> 
-                    <div class="col"> 
-                        <div class="card shadow-sm"> 
-                            <svg aria-label="Placeholder: Bookcover" class="bd-placeholder-img card-img-top" height="225" preserveAspectRatio="xMidYMid slice" role="img" width="100%" xmlns="http://www.w3.org/2000/svg">
-                                <title>Bookcover</title>
-                                <rect width="100%" height="100%" fill="#55595c"></rect>
-                                <text x="50%" y="50%" fill="#eceeef" dy=".3em">Bookcover</text>
-                            </svg> 
-                            <div class="card-body"> 
-                                <h3>Book name</h3>
-                                <h6>Some historian's name</h6>
-                                <p class="card-text">This book is about historical facts from 1000 years ago. It is a lot of fun for history geeks like me. But it is also quite informative and i would suggest it to everyone looking to expand their horizons and learn about past.</p> 
-                                <div class="d-flex justify-content-between align-items-center"> 
-                                    <div class="btn-group"> 
-                                        <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary">Delete</button> 
+                    <% for (book of books) { %>                   
+                        <div class="col"> 
+                            <div class="card shadow-sm">
+                                <img src="https://covers.openlibrary.org/b/isbn/<%= book.ISBN %>-M.jpg"/>
+                                <div class="card-body"> 
+                                    <h3><%= book.title %></h3>
+                                    <h6><%= book.author %></h6>
+                                    <p class="card-text"><%= book.book_description %></p> 
+                                    <div class="d-flex justify-content-between align-items-center"> 
+                                        <div class="btn-group"> 
+                                            <form action="/review/<%= book.ISBN %>" method="get">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">View reviews</button> 
+                                            </form>
+                                        </div> 
+                                        <small class="text-body-secondary"><%= book.post_date %></small> 
                                     </div> 
-                                    <small class="text-body-secondary">18-05-2026</small> 
                                 </div> 
                             </div> 
-                        </div> 
-                    </div>
-                    <div class="col"> 
-                        <div class="card shadow-sm"> 
-                            <svg aria-label="Placeholder: Bookcover" class="bd-placeholder-img card-img-top" height="225" preserveAspectRatio="xMidYMid slice" role="img" width="100%" xmlns="http://www.w3.org/2000/svg">
-                                <title>Bookcover</title>
-                                <rect width="100%" height="100%" fill="#55595c"></rect>
-                                <text x="50%" y="50%" fill="#eceeef" dy=".3em">Bookcover</text>
-                            </svg> 
-                            <div class="card-body"> 
-                                <h3>Below Zero</h3>
-                                <h6>Ahnhem</h6>
-                                <p class="card-text">This book is a detective horror book. I would say that Sweedish writers are pretty graphic and brutal. It is very clever and keeps you on the edge of your seat, but i would not recommend it if you don't have a strong stomach.</p> 
-                                <div class="d-flex justify-content-between align-items-center"> 
-                                    <div class="btn-group"> 
-                                        <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary">Delete</button> 
-                                    </div> 
-                                    <small class="text-body-secondary">18-05-2026</small> 
-                                </div> 
-                            </div> 
-                        </div> 
-                    </div> 
+                        </div>
+                    <% } %>
                 </div>
             </div>
         </div>

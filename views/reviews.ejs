@@ -1,0 +1,45 @@
+<%- include("partials/header.ejs") %>
+
+    <main class=" gold-back ">
+        <div class="container-fluid justify-content-center align-items-center p-5">
+            <div class="row px-5 py-3">
+                <div class="col-12 col-md-4">
+                    <img src="https://covers.openlibrary.org/b/isbn/<%= book.ISBN %>-L.jpg"/>
+                </div>
+                <div class="col-12 col-md-4">
+                    <h1 class="site-title green-font"><%= book.title %></h1>
+                    <h3><%= book.author %></h3>
+                    <h4><%= book.category %></h4>
+                    <h5>Released in: <%= book.post_date %></h5>
+                    <p>Posted by: <%= book.reader %>, who described the book as:</p>
+                    <p><%= book.book_description %></p>
+                </div>
+                <div class="col-12 col-md-4">
+                    <form action="/review/<%= book.ISBN %>" id="form" class="row g-2 justify-content-center px-3" method="POST">
+                        <input class="form-control mb-2" type="text" name="comment" placeholder="review" required>
+                        <select name="rating" class="form-select" name="rating" required>
+                                <option value="" disabled selected>rating</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        <input class="btn btn-secondary" type="submit" value="Add your review">
+                    </form>
+                </div>
+            </div>
+            <% for (review of reviews) { %>
+                <div class="row px-5 py-3">
+                    <div class="col-12">
+                        <hr />
+                        <h5 class="green-font">User <%= review.review_user%> said:</h5>
+                        <p><%= review.comment %></p>
+                        <h6 class="green-font">Rating: <%= review.rating %>/5</h6>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+<%- include("partials/footer.ejs") %>

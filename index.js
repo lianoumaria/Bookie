@@ -1,4 +1,5 @@
 import express from "express";
+import session from "express-session";
 import axios from "axios";
 import bodyParser from "body-parser";
 import pg from "pg";
@@ -7,64 +8,65 @@ import pw from "./secrets.js";
 const app = express();
 const port = 3000;
 const API_URL = "the book cover API";
-let userName;
 
+app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 //Initial login page
-app.get("/", (req,res) => {
-    res.render("login.ejs");
+app.get("/", (req, res) => {
+  if (req.session.user) {
+    return res.redirect("/home");
+  }
+  res.render("login.ejs");
 });
 
 // this must either post /login with name = login or signin
-app.post("/login", (req, res) => {
-    //find the btn that was pushed
-    const btnAction = Object.keys(req.body)[2];
-    userName = req.body.username;
-    let passWord = req.body.pword;
-    let foundUser = users.find(user => user.username===userName);
+app.post("/", (req, res) => {
+  const userName = req.body.username;
+  const passWord = req.body.pword;
+  const btnAction = req.body.login ? "login" : req.body.signin ? "signin" : null;
+  const foundUser = users.find((user) => user.username === userName);
 
-    if (foundUser == undefined) {
-        switch (btnAction) {
-            case "login":
-                res.render("login.ejs", {
-                    error: "User doesn't exist"
-                });
-                break;
-            case "signin":
-                try {
-                    console.log("INSERT users VALUES ($1,$2); [userName, passWord]");
-                    res.redirect("/home");
-                } catch {
-                    console.log("DB error");
-                }
-                break;
-        }
-    } else {
-        switch (btnAction) {
-            case "login":
-                if (foundUser.password === passWord) {
-                    res.redirect("/home");
-                } else {
-                    res.render("login.ejs", {
-                        error: "Wrong password"
-                    });
-                }
-                break;
-            case "signin":
-                    res.render("login.ejs", {
-                        error: "Username already in use"
-                    });
-                break;
-            }
+  if (!btnAction) {
+    return res.render("login.ejs", { error: "Invalid action" });
+  }
+
+  if (!foundUser) {
+    if (btnAction === "login") {
+      return res.render("login.ejs", { error: "User doesn't exist" });
     }
+
+    // sign in as new user
+    users.push({ username: userName, password: passWord });
+    req.session.user = { username: userName };
+    return res.redirect("/home");
+  }
+
+  if (btnAction === "signin") {
+    return res.render("login.ejs", { error: "Username already in use" });
+  }
+
+  if (foundUser.password !== passWord) {
+    return res.render("login.ejs", { error: "Wrong password" });
+  }
+
+  req.session.user = { username: userName };
+  res.redirect("/home");
 });
 
 app.get("/signout", (req, res) => {
-    userName = undefined;
-    res.render("login.ejs");
-})
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
+});
 
 //Delete an account
 // app.delete('/account', (req, res) => {
@@ -78,27 +80,78 @@ app.get("/signout", (req, res) => {
 //   });
 // });
 
+function requireLogin(req, res, next) {
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+  next();
+}
+
 //Home page should give the choice to filter the books as well as list all of them
-app.get("/home", (req, res) => {
-    let bookList = books //SELECT * FROM books
-    
-    res.render("home.ejs", {
-        books: bookList
-    });
+app.get("/home", requireLogin, (req, res) => {
+  let currentUser = req.session.user.username;
+  let bookList = books; // SELECT * FROM books
+  res.render("home.ejs", {
+    books: bookList,
+    user: currentUser,
+  });
 });
 
-app.get("/review/:id", (req, res) => {
-    const selectedISBN = req.params.id;
-    console.log(selectedISBN);
-})
+app.get("/review/:id", requireLogin, (req, res) => {
+  const selectedISBN = req.params.id;
+  let selectedBook = books.find((book) => book.ISBN === selectedISBN);
+  let bookReviews = reviews.filter((review) => review.review_isbn === selectedISBN);
 
+  res.render("reviews.ejs", {
+    book: selectedBook,
+    reviews: bookReviews,
+    user: req.session.user.username,
+  });
+});
+
+app.post("/review/:id", requireLogin, (req, res) => {
+  const selectedISBN = req.params.id;
+  const newReview = {
+    id: reviews.length + 1,
+    review_user: req.session.user.username,
+    review_isbn: selectedISBN,
+    comment: req.body.comment,
+    rating: req.body.rating,
+  };
+  reviews.push(newReview);
+  res.redirect(`/review/${selectedISBN}`);
+});
+
+app.get("/books", requireLogin, (req, res) => {
+  const currentUser = req.session.user.username;
+  const bookList = books.filter((book) => book.reader === currentUser);
+  res.render("myBooks.ejs", {
+    books: bookList,
+    user: currentUser,
+  });
+});
+
+app.post("/books", requireLogin, (req, res) => {
+  const currentUser = req.session.user.username;
+  const newBook = {
+    ISBN: req.body.isbn,
+    title: req.body.bookTitle,
+    author: req.body.authorName,
+    book_description: req.body.description,
+    category: req.body.category,
+    post_date: req.body.releaseDate,
+    reader: currentUser,
+  };
+  books.push(newBook);
+  res.redirect("/books");
+});
 
 app.listen(port, (req, res) => {
     console.log(`Server running on port ${port}`);
 });
 
 
-const reviews = [
+let reviews = [
   {
     id: 1,
     review_user: "john123",
@@ -150,14 +203,15 @@ const reviews = [
   }
 ];
 
-const books = [
+let books = [
   {
     ISBN: "9780140449136",
-    title: "The Odyssey",
-    author: "Homer",
-    book_description: "An epic journey of Odysseus returning home after the Trojan War.",
+    title: "Crime and Punishment",
+    author: "Fyodor Dostoevsky",
+    book_description: "A psychological novel following Rodion Raskolnikov, a former student who commits a murder and struggles with guilt, morality, and redemption.",
     category: "Fiction",
-    post_date: "1996-11-01"
+    post_date: "1993-01-28",
+    reader: "john123"
   },
   {
     ISBN: "9780061120084",
@@ -165,7 +219,8 @@ const books = [
     author: "Harper Lee",
     book_description: "A story about justice, prejudice, and childhood in the American South.",
     category: "Social",
-    post_date: "2006-05-23"
+    post_date: "2006-05-23",
+    reader: "john123"
   },
   {
     ISBN: "9780451524935",
@@ -173,7 +228,8 @@ const books = [
     author: "George Orwell",
     book_description: "A dystopian novel about surveillance and totalitarianism.",
     category: "Thriller",
-    post_date: "1950-07-01"
+    post_date: "1950-07-01",
+    reader: "bob22"
   },
   {
     ISBN: "9780743273565",
@@ -181,7 +237,8 @@ const books = [
     author: "F. Scott Fitzgerald",
     book_description: "A tragic tale of wealth, love, and the American Dream.",
     category: "Romance",
-    post_date: "2004-09-30"
+    post_date: "2004-09-30",
+    reader: "bob22"
   },
   {
     ISBN: "9780547928227",
@@ -189,7 +246,8 @@ const books = [
     author: "J.R.R. Tolkien",
     book_description: "Bilbo Baggins embarks on an adventure with dwarves and a wizard.",
     category: "Fiction",
-    post_date: "2012-09-18"
+    post_date: "2012-09-18",
+    reader: "bob22"
   },
   {
     ISBN: "9781466373453",
@@ -197,7 +255,8 @@ const books = [
     author: "Jane Smith",
     book_description: "An introduction to programming concepts and problem solving.",
     category: "Informative",
-    post_date: "2021-03-15"
+    post_date: "2021-03-15",
+    reader: "mike99"
   },
   {
     ISBN: "9781982137274",
@@ -205,11 +264,12 @@ const books = [
     author: "Mark Taylor",
     book_description: "A collection of humorous stories about office life.",
     category: "Comedy",
-    post_date: "2020-08-10"
+    post_date: "2020-08-10",
+    reader: "emma"
   }
 ];
 
-const users = [
+let users = [
   {
     username: "john123",
     password: "pass123"
