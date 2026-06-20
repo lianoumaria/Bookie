@@ -1,0 +1,32 @@
+    <footer>
+        <div class="container-fluid dark-back m-0 p-3"> 
+            <div class="d-flex flex-wrap align-items-center justify-content-between px-5"> 
+                <p class="d-flex align-items-center mb-2 mb-lg-0 text-decoration-none coper-font"> 
+                    Copyrights©2026
+                </p> 
+                <p class="d-flex align-items-center mb-2 mb-lg-0 text-decoration-none coper-font">
+                    Bookie
+                </p>
+            </div> 
+        </div>
+    </footer>
+
+    
+
+    <!-- include bootstrap script -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script>
+        async function deleteAccount(e) {
+          e.preventDefault();
+          if (confirm('Are you sure you want to delete your account?')) {
+            const res = await fetch('/account', { method: 'DELETE' });
+            if (res.ok) {
+              window.location.href = '/';
+            } else {
+              alert('Failed to delete account');
+            }
+          }
+        }
+    </script>
+</body>
+</html>

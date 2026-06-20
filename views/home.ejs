@@ -1,0 +1,69 @@
+<%- include("partials/header.ejs") %>
+
+    <main> 
+        <section class="py-5 text-center container-fluid gold-back green-font"> 
+            <div class="row py-lg-5"> 
+                <div class="col-lg-6 col-md-8 mx-auto"> 
+                    <h1>Welcome to Bookie!</h1> 
+                    <p class="lead text-body-secondary">If you're looking for intresting books or you want to share your opinion on a book you've read, you're in the right place.</p> 
+                    <form action="/book/filter" id="form" class="row g-2 justify-content-center px-3" method="POST">
+                        <div class="col-12 col-md-6 col-lg-2">
+                            <input type="text" class="form-control" name="bookName" placeholder="Book">
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-2">
+                            <input type="text" class="form-control" name="authorName" placeholder="Author">
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-2">
+                            <select name="category" class="form-select" required>
+                                <option value="" disabled selected>Category</option>
+                                <option value="1">Fiction</option>
+                                <option value="2">Comedy</option>
+                                <option value="3">Thriller</option>
+                                <option value="4">Informative</option>
+                                <option value="5">Romance</option>
+                                <option value="6">Social</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-2">
+                            <select name="sortBy" class="form-select">
+                                <option value="">Random</option>
+                                <option value="unknown">Post date</option>
+                                <option value="female">Review</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-lg-2 text-start">
+                            <button type="submit" class="btn btn-secondary">Search</button>
+                        </div>
+                    </form>
+                </div> 
+            </div> 
+        </section> 
+        <div class="album py-5 bg-body-tertiary"> 
+            <div class="container"> 
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"> 
+                    <% for (book of books) { %>                   
+                        <div class="col"> 
+                            <div class="card shadow-sm">
+                                <img src="https://covers.openlibrary.org/b/isbn/<%= book.ISBN %>-M.jpg"/>
+                                <div class="card-body"> 
+                                    <h3><%= book.title %></h3>
+                                    <h6><%= book.author %></h6>
+                                    <p class="card-text"><%= book.book_description %></p> 
+                                    <div class="d-flex justify-content-between align-items-center"> 
+                                        <div class="btn-group"> 
+                                            <form action="/review/<%= book.ISBN %>" method="get">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">View reviews</button> 
+                                            </form>
+                                        </div> 
+                                        <small class="text-body-secondary"><%= book.post_date %></small> 
+                                    </div> 
+                                </div> 
+                            </div> 
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<%- include("partials/footer.ejs") %>

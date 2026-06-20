@@ -1,0 +1,39 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.dark-back {
+    background-color: #3f4e4f;
+}
+
+.coper-font {
+    color: #a27b5c;
+}
+
+.green-font {
+    color: #3f4e4f;
+}
+
+.site-title {
+    font-weight: 900;
+    font-size: 2rem;
+}
+
+.gold-back {
+    background-color: #dcd7c9;
+}
+
+.login-moto {
+    font-size: 2rem;
+    color: #dcd7c9;
+    margin: 0px 100px 50px 100px;
+}
