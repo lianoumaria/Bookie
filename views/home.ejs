@@ -6,29 +6,29 @@
                 <div class="col-lg-6 col-md-8 mx-auto"> 
                     <h1>Welcome to Bookie!</h1> 
                     <p class="lead text-body-secondary">If you're looking for intresting books or you want to share your opinion on a book you've read, you're in the right place.</p> 
-                    <form action="/book/filter" id="form" class="row g-2 justify-content-center px-3" method="POST">
+                    <form action="/home/filter" id="form" class="row g-2 justify-content-center px-3" method="POST">
                         <div class="col-12 col-md-6 col-lg-2">
-                            <input type="text" class="form-control" name="bookName" placeholder="Book">
+                            <input type="text" class="form-control" name="bookTitle" placeholder="Title">
                         </div>
                         <div class="col-12 col-md-6 col-lg-2">
                             <input type="text" class="form-control" name="authorName" placeholder="Author">
                         </div>
                         <div class="col-12 col-md-6 col-lg-2">
-                            <select name="category" class="form-select" required>
+                            <select name="category" class="form-select">
                                 <option value="" disabled selected>Category</option>
-                                <option value="1">Fiction</option>
-                                <option value="2">Comedy</option>
-                                <option value="3">Thriller</option>
-                                <option value="4">Informative</option>
-                                <option value="5">Romance</option>
-                                <option value="6">Social</option>
+                                <option value="Fiction">Fiction</option>
+                                <option value="Comedy">Comedy</option>
+                                <option value="Thriller">Thriller</option>
+                                <option value="Informative">Informative</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Social">Social</option>
                             </select>
                         </div>
                         <div class="col-12 col-md-6 col-lg-2">
                             <select name="sortBy" class="form-select">
                                 <option value="">Random</option>
-                                <option value="unknown">Post date</option>
-                                <option value="female">Review</option>
+                                <option value="postDate">Post date</option>
+                                <option value="bestReview">Review</option>
                             </select>
                         </div>
                         <div class="col-12 col-lg-2 text-start">
@@ -44,18 +44,20 @@
                     <% for (book of books) { %>                   
                         <div class="col"> 
                             <div class="card shadow-sm">
-                                <img src="https://covers.openlibrary.org/b/isbn/<%= book.ISBN %>-M.jpg"/>
+                                <img src="https://covers.openlibrary.org/b/isbn/<%= (book.isbn) %>-M.jpg"/>
                                 <div class="card-body"> 
                                     <h3><%= book.title %></h3>
                                     <h6><%= book.author %></h6>
+                                    <h6><%= book.category %></h6>
+                                    <p>Rated: <%= book.avg_rating != null ? Number(book.avg_rating).toFixed(2) : "No rating" %></p>
                                     <p class="card-text"><%= book.book_description %></p> 
                                     <div class="d-flex justify-content-between align-items-center"> 
                                         <div class="btn-group"> 
-                                            <form action="/review/<%= book.ISBN %>" method="get">
+                                            <form action="/review/<%= book.isbn %>" method="get">
                                                 <button type="submit" class="btn btn-sm btn-outline-secondary">View reviews</button> 
                                             </form>
                                         </div> 
-                                        <small class="text-body-secondary"><%= book.post_date %></small> 
+                                        <small class="text-body-secondary"><%= book.post_date.toISOString().split('T')[0] %></small> 
                                     </div> 
                                 </div> 
                             </div> 

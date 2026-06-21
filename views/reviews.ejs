@@ -4,18 +4,18 @@
         <div class="container-fluid justify-content-center align-items-center p-5">
             <div class="row px-5 py-3">
                 <div class="col-12 col-md-4">
-                    <img src="https://covers.openlibrary.org/b/isbn/<%= book.ISBN %>-L.jpg"/>
+                    <img src="https://covers.openlibrary.org/b/isbn/<%= book.isbn %>-L.jpg"/>
                 </div>
                 <div class="col-12 col-md-4">
                     <h1 class="site-title green-font"><%= book.title %></h1>
                     <h3><%= book.author %></h3>
                     <h4><%= book.category %></h4>
-                    <h5>Released in: <%= book.post_date %></h5>
+                    <h5>Released in: <%= book.post_date.toISOString().split('T')[0] %></h5>
                     <p>Posted by: <%= book.reader %>, who described the book as:</p>
                     <p><%= book.book_description %></p>
                 </div>
                 <div class="col-12 col-md-4">
-                    <form action="/review/<%= book.ISBN %>" id="form" class="row g-2 justify-content-center px-3" method="POST">
+                    <form action="/review/<%= book.isbn %>" id="form" class="row g-2 justify-content-center px-3" method="POST">
                         <input class="form-control mb-2" type="text" name="comment" placeholder="review" required>
                         <select name="rating" class="form-select" name="rating" required>
                                 <option value="" disabled selected>rating</option>
