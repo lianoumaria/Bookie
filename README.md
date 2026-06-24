@@ -12,6 +12,6 @@ Or you can just check out suggested books.
 `node index.js` or `nodemon index.js` if you are updating the code.
 
 ### Note:
-The project offers basic functionality. Update/delete functionality of posted books and reviews is not yet added.
+The project offers basic functionality. Update/delete functionality of posted books and reviews is not yet added. The authentication uses simple username-password pairs that are not encrypted, so use dummy passwords and not any of your acctual ones.
 
 
